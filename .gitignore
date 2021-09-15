@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
+slides/bd/
+slides/rmed/
+docs/slides/bd/
+docs/slides/rmed/

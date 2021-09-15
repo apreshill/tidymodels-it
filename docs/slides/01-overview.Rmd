@@ -1,0 +1,1247 @@
+---
+title: "A bird's eye view"
+subtitle: "Tidymodels, Virtually"
+session: 01
+author: Alison Hill
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "assets/css/my-theme.css", "assets/css/my-fonts.css"]
+    seal: false 
+    lib_dir: libs
+    nature:
+      highlightLanguage: "r"
+      highlightStyle: "xcode"
+      slideNumberFormat: "" 
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+    includes: 
+      in_header:
+        - 'assets/header.html'
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(comment = "#",
+                      message = FALSE,
+                      warning = FALSE, 
+                      collapse = TRUE,
+                      fig.retina = 3,
+                      fig.align = 'center',
+                      fig.path = "figs/01/",
+                      R.options = list(tibble.max_extra_cols=5, 
+                                       tibble.print_max=5, 
+                                       tibble.width=60))
+options("scipen" = 16)
+library(tidymodels)
+yt_counter <- 0
+```
+
+
+```{r packages, include=FALSE}
+library(palmerpenguins)
+penguins <- penguins %>%
+    filter(complete.cases(flipper_length_mm, body_mass_g, species, sex))
+library(countdown)
+library(tidyverse)
+library(tidymodels)
+library(workflows)
+library(scico)
+library(gganimate)
+library(tune)
+theme_set(theme_minimal())
+
+# for figures
+train_color <- "#1a162d"
+test_color  <- "#cd4173"
+data_color  <- "#767381"
+assess_color <- "#84cae1"
+splits_pal <- c(data_color, train_color, test_color)
+```
+
+
+class: title-slide, center, bottom
+
+# `r rmarkdown::metadata$title`
+
+## `r rmarkdown::metadata$subtitle` &mdash; Session `r stringr::str_pad(rmarkdown::metadata$session, 2, pad = "0")`
+
+### `r rmarkdown::metadata$author` 
+
+---
+class: middle, center, inverse
+
+## .big-text[Hello.]
+
+
+---
+name: hello
+class: middle, center, inverse
+
+
+### `r rmarkdown::metadata$author`
+
+<img style="border-radius: 50%;" src="https://www.apreshill.com/about/sidebar/avatar.jpg" width="150px"/>
+
+[`r fontawesome::fa("github")` @apreshill](https://github.com/apreshill)    
+[`r fontawesome::fa("twitter")` @apreshill](https://twitter.com/apreshill)   
+[`r fontawesome::fa("link")` apreshill.com](https://www.apreshill.com)
+
+
+---
+class: center, middle, inverse
+
+# What is Machine Learning?
+
+???
+
+Machine Learning is usually thought of as a subfield of artificial intelligence that itself contains other hot sub-fields.
+
+Let's start somewhere familiar. I have a data set and I want to analyze it. 
+
+The actual data set is named `ames` and it comes in the `AmesHousing` R package. No need to open your computers. Let's just discuss for a few minutes.
+
+---
+class: middle, center
+
+# What is machine learning?
+
+--
+
+```{r echo=FALSE}
+knitr::include_graphics("https://imgs.xkcd.com/comics/machine_learning.png ")
+```
+
+---
+class: top, center
+background-image: url(images/intro.002.jpeg)
+background-size: cover
+
+---
+class: top, center
+background-image: url(images/intro.003.jpeg)
+background-size: cover
+---
+class: top, center
+background-image: url(images/all-of-ml.jpg)
+background-size: contain
+
+.footnote[Credit: <https://vas3k.com/blog/machine_learning/>]
+
+---
+class: middle, center, frame
+
+# Two modes
+
+--
+
+.pull-left[
+
+## Classification
+
+]
+
+--
+
+.pull-left[
+
+## Regression
+
+]
+
+---
+class: middle, center, frame
+
+# Two cultures
+
+.pull-left[
+
+### Statistics
+]
+
+.pull-right[
+
+
+### Machine Learning
+]
+
+---
+class: middle, center, frame
+
+# Which is which?
+
+.pull-left[
+
+model first
+
+inference emphasis
+]
+
+.pull-right[
+
+data first
+
+prediction emphasis
+]
+
+---
+class: middle, center, frame
+
+# Which is which?
+
+.pull-left[
+
+model first
+
+inference emphasis
+
+### Statistics
+]
+
+.pull-right[
+
+data first
+
+prediction emphasis
+
+### Machine Learning
+]
+
+
+
+---
+name: train-love
+background-image: url(images/train.jpg)
+background-size: contain
+background-color: #f6f6f6
+
+---
+template: train-love
+class: center, top
+
+# Statistics
+
+---
+template: train-love
+class: bottom
+
+
+> *"Statisticians, like artists, have the bad habit of falling in love with their models."*
+>
+> &mdash; George Box
+
+---
+class: freight-slide, center, inverse
+
+# Predictive modeling
+
+---
+class: middle, inverse, center
+
+# Schedule for Today
+
+--
+
+01 - A bird's eye view
+
+--
+
+02 - Build a useful model
+
+--
+
+03 - Build better training data
+
+--
+
+04 - The forest for the trees
+
+--
+
+05 - Build a fine-tuned model
+
+--
+
+06 - Case study
+
+---
+class: inverse, middle, center
+
+# tidymodels
+
+---
+background-image: url(images/tm-org.png)
+background-size: contain
+
+---
+class: middle
+
+```{r}
+library(tidymodels)
+```
+
+
+---
+class: inverse, middle, center
+
+# To the workshop! `r emo::ji("rocket")`
+
+<i class="fas fa-crow"></i>
+
+https://tmv.netlify.app/site/
+
+
+<i class="fas fa-cloud"></i>
+
+http://bit.ly/tmv-rmed2020
+---
+
+What is a model?
+
+A function, an equation
+
+Observations go in, and predictions come out
+
+---
+
+What's inside a model?
+
+Data -> parameter estimates
+
+---
+
+How do we get a model?
+
+We build one
+
+---
+
+An explanatory or descriptive modeling workflow (show diagrams)
+
+---
+
+```{r same-pred}
+# pick model
+rt_mod <-
+  decision_tree(engine = "rpart") %>%
+  set_mode("regression")
+
+rt_mod %>% 
+  # fit
+  fit(body_mass_g ~ ., data = penguins) %>% 
+  # predict
+  predict(new_data = penguins) %>%  
+  mutate(body_mass_g = penguins$body_mass_g) %>% 
+  # compare
+  rmse(truth = body_mass_g, estimate = .pred)
+```
+
+---
+
+A predictive modeling workflow (edited diagrams)
+
+---
+
+Idea: only show huge block of code at beginning, then end, exercise is to figure out what each step does
+
+
+
+---
+
+```{r include=FALSE}
+set.seed(2017)
+```
+
+
+```{r 10-fold-cv}
+# holdout method
+peng_split <- initial_split(penguins, strata = species)
+peng_train <- training(peng_split)
+peng_test <- testing(peng_split)
+
+# add cross-validation
+peng_folds <- vfold_cv(data = peng_train, strata = "species")
+
+# pick model
+rt_mod <-
+  decision_tree(engine = "rpart") %>%
+  set_mode("regression")
+
+# here comes the actual ML bit…
+fit_resamples(
+    rt_mod,
+    preprocessor = body_mass_g ~ .,
+    resamples = peng_folds
+) %>% 
+  collect_metrics()
+```
+
+---
+
+```{r penguins-parsnip, eval=FALSE}
+# holdout method
+peng_split <- initial_split(penguins, strata = species)
+peng_train <- training(peng_split) 
+peng_test <- testing(peng_split)
+
+# add cross-validation
+peng_folds <- vfold_cv(data = peng_train, strata = "species") 
+
+# pick model #<<
+rt_mod <- #<<
+  parsnip::decision_tree(engine = "rpart") %>% #<<
+  parsnip::set_mode("regression") #<<
+
+# here comes the actual ML bit…
+fit_resamples(
+    rt_mod,
+    preprocessor = body_mass_g ~ .,
+    resamples = peng_folds
+) %>% 
+  collect_metrics()
+```
+
+
+---
+class: inverse
+
+# Pick a model with parsnip
+
+---
+class: middle, center
+
+# Quiz
+
+How many ways can you think of in R to do some type of linear regression?
+
+--
+
+`lm` for the general linear model
+
+--
+
+`glmnet` for regularized regression
+
+--
+
+`stan` for Bayesian regression
+
+--
+
+`keras` for regression using tensorflow
+
+--
+
+`spark` for large data sets
+
+--
+
+...
+
+
+---
+class: middle, frame
+
+
+# .center[To specify a model with parsnip]
+
+.right-column[
+
+1\. Pick a .display[model] + .display[engine]
+
+2\. Set the .display[mode] (if needed)
+
+]
+
+---
+class: middle, frame
+
+# .center[To specify a model with parsnip]
+
+
+
+```{r eval = FALSE}
+decision_tree(engine = "C5.0") %>%
+  set_mode("classification")
+```
+
+
+
+
+---
+class: middle, frame
+
+# .center[To specify a model with parsnip]
+
+
+```{r eval = FALSE}
+nearest_neighbor(engine = "kknn") %>%              
+  set_mode("regression") %>%        
+```
+
+---
+class: middle, frame
+
+.fade[
+# .center[To specify a model with parsnip]
+]
+
+
+.right-column[
+
+1\. Pick a .display[model] + .display[engine]
+.fade[
+
+2\. Set the .display[mode] (if needed)
+]
+
+]
+
+---
+class: middle, center
+
+# 1\. Pick a .display[model] + .display[engine]
+
+All available models are listed at
+
+<https://www.tidymodels.org/find/parsnip/>
+
+```{r echo=FALSE}
+knitr::include_url("https://www.tidymodels.org/find/parsnip/")
+```
+
+---
+class: middle
+
+.center[
+# `linear_reg()`
+
+Specifies a model that uses linear regression
+]
+
+```{r results='hide'}
+linear_reg(mode = "regression", engine = "lm", penalty = NULL, mixture = NULL)
+```
+
+---
+class: middle
+
+.center[
+# `linear_reg()`
+
+Specifies a model that uses linear regression
+]
+
+```{r results='hide'}
+linear_reg(
+  mode = "regression", # "default" mode, if exists
+  engine = "lm",       # default computational engine
+  penalty = NULL,      # model hyper-parameter
+  mixture = NULL       # model hyper-parameter
+  )
+```
+
+---
+class: middle, frame
+
+.fade[
+# .center[To specify a model with parsnip]
+]
+
+
+.right-column[
+.fade[
+1\. Pick a .display[model] + .display[engine]
+]
+
+2\. Set the .display[mode] (if needed)
+
+]
+
+---
+class: middle, center
+
+
+# `set_mode()`
+
+Sets the class of problem the model will solve, which influences which output is collected. Not necessary if mode is set in Step 1.
+
+
+```{r eval=FALSE}
+lm_mod %>% set_mode(mode = "regression")
+```
+
+---
+class: middle
+
+.pull-left[
+
+```{r}
+# pick model #<<
+lm_mod <- #<<
+  parsnip::linear_reg(engine = "lm") %>% #<<
+  parsnip::set_mode("regression") #<<
+
+lm_mod %>% 
+  fit(body_mass_g ~ flipper_length_mm, 
+      data = penguins) 
+```
+
+]
+
+.pull-right[
+```{r penguins-lm, echo=FALSE}
+ggplot(penguins, aes(flipper_length_mm, body_mass_g)) +
+  geom_smooth(method = "lm", se = FALSE, colour = "#9dc7e1") +
+  geom_point(size = 3, alpha = .3) +
+  geom_point(aes(flipper_length_mm, fitted(lm(body_mass_g ~ flipper_length_mm))),
+             color = "#CA225E",
+             size = 3) +
+  theme(text = element_text(family = "Lato"))
+```
+
+]
+
+---
+class: middle, center, inverse
+
+# A model doesn't have to be a straight line!
+
+---
+class: middle
+
+.pull-left[
+
+```{r}
+# pick model #<<
+rt_mod <- #<<
+  parsnip::decision_tree(engine = "rpart") %>% #<<
+  parsnip::set_mode("regression") #<<
+
+rt_mod %>% 
+  fit(body_mass_g ~ flipper_length_mm, 
+      data = penguins)
+```
+
+]
+
+
+--
+
+.pull-right[
+```{r penguins-rt, echo=FALSE}
+rt_preds <- rt_mod %>% 
+  fit(body_mass_g ~ flipper_length_mm, data = penguins) %>% 
+  predict(new_data = penguins) %>% 
+  mutate(weight_truth = penguins$body_mass_g)
+
+ggplot(penguins, aes(flipper_length_mm, body_mass_g)) +
+  geom_line(aes(x=flipper_length_mm, y = rt_preds$.pred), colour="#9dc7e1", size=2) +
+  geom_point(size = 3, alpha = .3) +
+  geom_point(aes(flipper_length_mm, rt_preds$.pred),
+             color = "#CA225E",
+             size = 3) +
+  theme(text = element_text(family = "Lato"))
+```
+
+]
+
+
+
+
+---
+
+```{r penguins-rsample, eval=FALSE}
+# holdout method
+peng_split <- rsample::initial_split(penguins, strata = species) #<<
+peng_train <- rsample::training(peng_split) #<<
+
+# add cross-validation
+peng_folds <- rsample::vfold_cv(data = peng_train, strata = "species") #<<
+
+# pick model
+rt_mod <-
+  decision_tree(engine = "rpart") %>%
+  set_mode("regression")
+
+# here comes the actual ML bit…
+fit_resamples(
+    rt_mod,
+    preprocessor = body_mass_g ~ .,
+    resamples = peng_folds
+) %>% 
+  collect_metrics()
+```
+
+---
+class: inverse, middle, center
+
+# Resample a model with rsample
+
+---
+class: inverse, middle, center
+
+# .fade[Resample a model with rsample]
+
+# Step 1: The holdout method
+
+---
+class: middle, center
+
+```{r all-split, echo = FALSE, fig.width = 12, fig.height = 3}
+set.seed(16)
+one_split <- slice(penguins, 1:30) %>% 
+  initial_split() %>% 
+  tidy() %>% 
+  add_row(Row = 1:30, Data = "Original") %>% 
+  mutate(Data = case_when(
+    Data == "Analysis" ~ "Training",
+    Data == "Assessment" ~ "Testing",
+    TRUE ~ Data
+  )) %>% 
+  mutate(Data = factor(Data, levels = c("Original", "Training", "Testing")))
+
+all_split <-
+  ggplot(one_split, aes(x = Row, y = fct_rev(Data), fill = Data)) + 
+  geom_tile(color = "white",
+            size = 1) + 
+  scale_fill_manual(values = splits_pal, guide = "none") +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = rel(2)),
+        axis.text.x = element_blank(),
+        legend.position = "top",
+        panel.grid = element_blank(),
+        text = element_text(family = "Lato")) +
+  coord_equal(ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+all_split
+```
+
+---
+class: middle
+
+.pull-left[
+
+Train with `training()`
+
+Test with `testing()`
+
+]
+
+.pull-right[
+
+```{r lm-test-resid, echo=FALSE, message = FALSE, warning = FALSE}
+train_lm <- lm(body_mass_g ~ flipper_length_mm, 
+               data = peng_train)
+
+lm_test_pred <- train_lm %>% 
+  broom::augment(newdata = peng_test) 
+
+ggplot(data = NULL, aes(flipper_length_mm, body_mass_g)) +
+  geom_segment(data = lm_test_pred,
+               aes(x = flipper_length_mm, 
+                   xend = flipper_length_mm, 
+                   y = body_mass_g, 
+                   yend = .fitted), 
+               colour = "#E7553C") +
+  geom_smooth(data = peng_train, method = "lm", se = FALSE, colour = "#4D8DC9",
+              fullrange = TRUE) +
+  #geom_smooth(data = small_test, method = "lm", se = FALSE, colour = "#2aa198", lty = 4, fullrange = TRUE) +
+  geom_point(data = peng_test, size = 3) +
+  theme(text = element_text(family = "Lato"))
+```
+]
+
+
+---
+class: middle
+
+.pull-left[
+
+Train with `training()`
+
+Test with `testing()`
+
+]
+
+.pull-right[
+
+```{r rt-test-resid, echo=FALSE, message = FALSE, warning = FALSE}
+rt_test_preds <- rt_mod %>% 
+  fit(body_mass_g ~ flipper_length_mm, data = peng_train) %>% 
+  predict(new_data = peng_test) %>% 
+  mutate(body_mass_g = peng_test$body_mass_g) %>% 
+  mutate(flipper_length_mm = peng_test$flipper_length_mm)
+
+ggplot(data = rt_test_preds, aes(flipper_length_mm, body_mass_g)) +
+  geom_segment(aes(x = flipper_length_mm, 
+                   xend = flipper_length_mm, 
+                   y = body_mass_g, 
+                   yend = .pred), 
+               colour = "#E7553C") +
+  geom_line(aes(x = flipper_length_mm, y = .pred), colour="#9dc7e1", size=2) +
+  geom_point(data = peng_test, size = 3) +
+  theme(text = element_text(family = "Lato"))
+```
+]
+
+---
+
+# Do it once
+
+.pull-left[
+
+```{r ref.label='same-pred'}
+
+```
+
+]
+
+.pull-right[
+```{r train-test}
+peng_test  <- testing(peng_split)
+rt_mod %>% 
+  # TRAIN: get fitted model
+  fit(body_mass_g ~ ., data = peng_train) %>% 
+  # TEST: get predictions
+  predict(new_data = peng_test) %>% 
+  # COMPARE: get metrics
+  bind_cols(peng_test) %>% 
+  rmse(truth = body_mass_g, estimate = .pred)
+```
+]
+
+
+
+---
+
+# Train + test the model once
+
+.pull-left[
+
+```{r ref.label="train-test"}
+
+```
+
+]
+
+
+---
+
+# Train + test the model 10 times
+
+.pull-left[
+
+```{r ref.label="train-test"}
+
+```
+
+]
+
+.pull-right[
+```{r ref.label="10-fold-cv"}
+```
+]
+
+---
+class: inverse, middle, center
+
+# .fade[Resample a model with rsample]
+
+# .fade[Step 1: The holdout method]
+
+# Step 2: Cross-validation
+
+---
+
+```{r include=FALSE}
+plot_split <- function(seed = 1, arrow = FALSE) {
+  set.seed(seed)
+  one_split <- slice(penguins, 1:20) %>% 
+    initial_split() %>% 
+    tidy() %>% 
+    add_row(Row = 1:20, Data = "Original") %>% 
+    mutate(Data = case_when(
+      Data == "Analysis" ~ "Training",
+      Data == "Assessment" ~ "Testing",
+      TRUE ~ Data
+    )) %>% 
+    mutate(Data = factor(Data, levels = c("Original", "Training", "Testing")))
+  
+  both_split <-
+    one_split %>% 
+    filter(!Data == "Original") %>% 
+    ggplot(aes(x = Row, y = 1, fill = Data)) + 
+    geom_tile(color = "white",
+              size = 1) + 
+    scale_fill_manual(values = splits_pal[2:3],
+                       guide = "none") +
+    theme_void() +
+    #theme(plot.margin = unit(c(-1, -1, -1, -1), "mm")) +
+    coord_equal() + {
+    # arrow is TRUE
+    if (arrow == TRUE) 
+      annotate("segment", x = 31, xend = 32, y = 1, yend = 1, 
+               colour = assess_color, size=1, arrow=arrow())
+    } + {
+    # arrow is TRUE
+    if (arrow == TRUE)
+        annotate("text", x = 33.5, y = 1, colour = assess_color, size=8, 
+                 label = "Metric", family="Lato")
+    }
+
+  
+  both_split
+}
+```
+
+---
+class: middle, center
+
+# Data Splitting
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 100)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 1)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 10)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 18)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 30)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 31)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 21)
+```
+
+--
+
+```{r echo=FALSE, fig.width = 10, fig.height = .5, fig.align = 'center'}
+plot_split(seed = 321)
+```
+
+---
+class: frame, center, middle
+
+# Resampling
+
+Let's resample 10 times 
+
+then compute the mean of the results...
+
+---
+
+```{r include = FALSE}
+set.seed(9)
+```
+
+
+```{r cv-for-loop, include = FALSE}
+rmse <- vector(length = 10, mode = "double")
+for (i in 1:10) {
+  new_split <- initial_split(penguins)
+  new_train <- training(new_split)
+  new_test  <- testing(new_split)
+  rmse[i] <-
+    lm_mod %>% 
+      fit(body_mass_g ~ flipper_length_mm, data = new_train) %>% 
+      # TEST: get predictions
+      predict(new_data = new_test) %>% 
+      bind_cols(new_test) %>% 
+      rmse(truth = body_mass_g, estimate = .pred) %>% 
+      pull(.estimate)
+}
+```
+
+```{r}
+rmse %>% tibble::enframe(name = "rmse")
+mean(rmse)
+```
+
+---
+background-image: url(images/diamonds.jpg)
+background-size: contain
+background-position: left
+class: middle, center
+background-color: #f5f5f5
+
+.pull-right[
+## The .display[testing set] is precious...
+
+## we can only use it once!
+
+]
+
+---
+background-image: url(https://www.tidymodels.org/start/resampling/img/resampling.svg)
+background-size: 60%
+
+---
+background-image: url(images/cross-validation/Slide2.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide3.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide4.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide5.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide6.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide7.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide8.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide9.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide10.png)
+background-size: contain
+
+---
+background-image: url(images/cross-validation/Slide11.png)
+background-size: contain
+
+---
+class: middle, center
+
+# V-fold cross-validation
+
+```{r eval=FALSE}
+vfold_cv(data, v = 10, ...)
+```
+
+
+---
+exclude: true
+
+```{r cv, fig.height=4, echo=FALSE}
+set.seed(1)
+folds10 <- slice(penguins, 1:20) %>% 
+  vfold_cv() %>% 
+  tidy() %>% 
+  mutate(split = str_c("Split", str_pad(parse_number(Fold), width = 2, pad = "0")))
+
+folds <- ggplot(folds10, aes(x = Row, y = fct_rev(split), fill = Data)) + 
+  geom_tile(color = "white",
+            width = 1,
+            size = 1) + 
+  scale_fill_manual(values = c(train_color, assess_color)) +
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_blank(),
+        legend.position = "top",
+        panel.grid = element_blank(),
+        text = element_text(family = "Lato"),
+        legend.key.size = unit(.4, "cm"),
+        legend.text = element_text(size = rel(.4))) +
+  coord_equal() +
+  labs(x = NULL, y = NULL, fill = NULL) 
+```
+
+---
+class: middle, center
+
+# Guess
+
+How many times does in observation/row appear in the assessment set?
+
+```{r vfold-tiles, echo=FALSE, fig.height=6, fig.width = 12, fig.align='center'}
+folds +
+    theme(axis.text.y = element_text(size = rel(2)),
+          legend.key.size = unit(.85, "cm"),
+          legend.text = element_text(size = rel(1)))
+```
+
+---
+
+```{r echo=FALSE, fig.height=6, fig.width = 12, fig.align='center', warning=FALSE, message=FALSE}
+test_folds <- tibble(
+  Row = seq(1, 20, 1),
+  Data = "assessment",
+  Fold = rep(1:10, each = 2)
+) 
+
+# i want all 20 rows, for all 10 folds
+all_rows <- tibble(
+  Row = rep(seq(1, 20, 1), 10),
+  Fold = rep(1:10, each = 20)
+)
+
+train_folds <- all_rows %>% 
+  anti_join(test_folds)
+
+all_folds <- test_folds %>% 
+  full_join(train_folds) %>% 
+  mutate(Fold = as.factor(Fold)) %>% 
+  mutate(Data = replace_na(Data, "analysis"))
+
+ggplot(all_folds, aes(x = Row, y = fct_rev(Fold), fill = Data)) + 
+  geom_tile(color = "white",
+            width = 1,
+            size = 1) + 
+  scale_fill_manual(values = c(train_color, assess_color), guide = "none") +
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_blank(),
+        legend.position = "top",
+        panel.grid = element_blank(),
+        text = element_text(family = "Lato"),
+        legend.key.size = unit(.4, "cm"),
+        legend.text = element_text(size = rel(.4))) +
+  coord_equal() +
+  labs(x = NULL, y = NULL, fill = NULL) 
+```
+
+
+---
+class: middle
+
+.left-column[
+
+![](https://parsnip.tidymodels.org/reference/figures/logo.png)
+]
+
+.right-column[
+```{r ref.label='penguins-parsnip', eval=FALSE}
+
+```
+]
+
+---
+class: middle
+
+
+.left-column[
+
+![](https://rsample.tidymodels.org/reference/figures/logo.png)
+]
+
+.right-column[
+
+```{r ref.label='penguins-rsample', eval=FALSE}
+
+```
+
+]
+
+---
+class: middle
+
+
+.left-column[
+
+![](https://tune.tidymodels.org/reference/figures/logo.png)
+]
+
+.right-column[
+
+```{r penguins-tune, eval=FALSE}
+# holdout method
+peng_split <- initial_split(penguins, strata = species) 
+peng_train <- training(peng_split)
+
+# add cross-validation
+peng_folds <- vfold_cv(data = peng_train, strata = "species")
+
+# pick model
+rt_mod <-
+  decision_tree(engine = "rpart") %>%
+  set_mode("regression")
+
+# here comes the actual ML bit…#<<
+tune::fit_resamples( #<<
+    rt_mod,#<<
+    preprocessor = body_mass_g ~ .,#<<
+    resamples = peng_folds#<<
+) %>% #<<
+  tune::collect_metrics()#<<
+```
+
+]
+
+---
+class: your-turn
+
+## Your turn
+
+Unscramble!
+
+```{r penguins-scrambled, eval=FALSE}
+peng_folds <- vfold_cv(data = peng_train, strata = "species")
+peng_train <- training(peng_split)
+peng_split <- initial_split(penguins, strata = species) 
+peng_metrics <- collect_metrics(peng_fits) 
+rt_mod <-
+  decision_tree(engine = "rpart") %>%
+  set_mode("regression")
+peng_fits <- 
+  fit_resamples( 
+    rt_mod,
+    preprocessor = body_mass_g ~ .,
+    resamples = peng_folds
+    ) 
+```
+
+---
+
+```{r penguins-unscrambled, eval=FALSE}
+peng_split <- initial_split(penguins, strata = species) 
+peng_train <- training(peng_split)
+peng_folds <- vfold_cv(data = peng_train, strata = "species")
+
+rt_mod <-
+  decision_tree(engine = "rpart") %>%
+  set_mode("regression")
+
+peng_fits <- 
+  fit_resamples( 
+    rt_mod,
+    preprocessor = body_mass_g ~ .,
+    resamples = peng_folds
+    ) 
+
+peng_metrics <- collect_metrics(peng_fits) 
+```
