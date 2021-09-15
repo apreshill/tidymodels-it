@@ -1,0 +1,76 @@
+---
+title: "02-model"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+options(scipen = 999)
+library(tidyverse)
+library(modeldata)
+library(tidymodels)
+
+data("ad_data")
+alz <- ad_data
+print("Hello Italy!")
+```
+
+# Your Turn 1
+
+Run the chunk below and look at the output. Then, copy/paste the code and edit to create:
+
++ a decision tree model for classification 
+
++ that uses the `C5.0` engine. 
+
+Save it as `tree_mod` and look at the object. What is different about the output?
+
+*Hint: you'll need https://www.tidymodels.org/find/parsnip/*
+
+```{r}
+lr_mod <- 
+  logistic_reg(engine = "glm") %>% 
+  set_mode("classification")
+lr_mod
+```
+
+```{r}
+
+```
+
+
+# Your Turn 2
+
+Fill in the blanks. 
+
+Use `initial_split()`, `training()`, and `testing()` to:
+
+1. Split **alz** into training and test sets. Save the rsplit!
+
+2. Extract the training data and testing data.
+
+3. Examine the proportions of the Class variable in each. 
+
+Keep `set.seed(100)` at the start of your code.
+
+*Hint: Be sure to remove every `_` before running the code!*
+
+```{r}
+set.seed(100) # Important!
+
+alz_split  <- ________(alz, strata = Class, prop = .9)
+alz_train  <- ________(alz_split)
+alz_test   <- ________(alz_split)
+
+```
+
+
+## Your Turn 3
+
+Run the code below. What does it return?
+
+```{r}
+set.seed(100)
+alz_folds <- 
+    vfold_cv(alz_train, v = 10, strata = Class)
+alz_folds
+```

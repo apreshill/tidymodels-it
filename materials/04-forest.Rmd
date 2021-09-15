@@ -1,0 +1,75 @@
+---
+title: "04-forest"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+options(scipen = 999)
+library(tidyverse)
+library(modeldata)
+library(tidymodels)
+
+data("ad_data")
+alz <- ad_data
+
+# data splitting
+set.seed(100) # Important!
+alz_split  <- initial_split(alz, strata = Class, prop = .9)
+alz_train  <- training(alz_split)
+alz_test   <- testing(alz_split)
+
+# data resampling
+set.seed(100)
+alz_folds <- 
+    vfold_cv(alz_train, v = 10, strata = Class)
+
+```
+
+# Your Turn 1
+
+Fill in the blanks to return the accuracy and ROC AUC for this model using 10-fold cross-validation.
+
+```{r}
+tree_mod <- 
+  decision_tree(engine = "rpart") %>% 
+  set_mode("classification")
+
+tree_wf <-
+  workflows() %>% 
+  add_formula(Class ~ .) %>% 
+  add_model(tree_mod)
+
+set.seed(100)
+______ %>% 
+  ______(resamples = alz_folds) %>% 
+  ______
+```
+
+# Your Turn 2
+
+Create a new parsnip model called `rf_mod`, which will learn an ensemble of classification trees from our training data using the **ranger** package. Update your `tree_wf` with this new model.
+
+Fit your workflow with 10-fold cross-validation and compare the ROC AUC of the random forest to your single decision tree model --- which predicts the test set better?
+
+*Hint: you'll need https://www.tidymodels.org/find/parsnip/*
+
+```{r}
+# model
+rf_mod <-
+  _____ %>% 
+  _____("ranger") %>% 
+  _____("classification")
+
+# workflow
+rf_wf <-
+  tree_wf %>% 
+  update_model(_____)
+
+# fit with cross-validation
+set.seed(100)
+_____ %>% 
+  fit_resamples(resamples = alz_folds) %>% 
+  collect_metrics()
+```
+
+
