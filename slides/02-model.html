@@ -341,6 +341,7 @@ This type of formula interface may look familiar
 How would we use parsnip to build this kind of linear regression model?
 
 ---
+exclude: true
 name: step1
 background-image: url("images/predicting/predicting.001.jpeg")
 background-size: contain
@@ -519,7 +520,7 @@ Save it as `tree_mod` and look at the object. What is different about the output
 *Hint: you'll need https://www.tidymodels.org/find/parsnip/*
 
 
-<div class="countdown" id="timer_614145d0" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_61418c59" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -677,7 +678,7 @@ class: center, middle
 
 
 ```r
-initial_split(data, prop = 3/4. strata = NULL, breaks = 4,)
+initial_split(data, prop = 3/4. strata = NULL, breaks = 4)
 ```
 
 
@@ -735,37 +736,6 @@ alz_train
 ```
 
 ---
-template: step1
-
----
-template: step2
-
----
-template: step3
-background-image: url("images/predicting/predicting.004.jpeg")
-background-size: contain
-
----
-name: holdout-step2
-background-image: url("images/predicting/predicting.006.jpeg")
-background-size: contain
-
----
-name: holdout-step3
-background-image: url("images/predicting/predicting.007.jpeg")
-background-size: contain
-
----
-name: holdout-step4
-background-image: url("images/predicting/predicting.008.jpeg")
-background-size: contain
-
----
-name: holdout
-background-image: url("images/predicting/predicting.009.jpeg")
-background-size: contain
-
----
 class: your-turn
 
 # Your turn 2
@@ -776,14 +746,14 @@ Use `initial_split()`, `training()`, and `testing()` to:
 
 1. Split **alz** into training and test sets. Save the rsplit!
 
-2. Extract the training data and fit your classification tree model.
+2. Extract the training data and the testing data.
 
-3. Setup your training data to use 10-fold cross-validation.
+3. Check the proportions of the `Class` variable in each set.
 
 
 Keep `set.seed(100)` at the start of your code.
 
-<div class="countdown" id="timer_614143ed" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_61418d1c" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">04</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -799,77 +769,6 @@ alz_test   &lt;- testing(alz_split)
 ```
 
 
----
-template: predictions
-
----
-name: accurate-predictions
-class: middle, center, frame
-
-# Goal of Machine Learning
-
-## 🎯 generate .display[accurate predictions]
-
-???
-
-Now we have predictions from our model. What can we do with them? If we already know the truth, that is, the outcome variable that was observed, we can compare them!
-
----
-class: middle, center, frame
-
-# Axiom
-
-Better Model = Better Predictions (Lower error rate)
-
----
-class: middle, center
-
-# `accuracy()*`
-
-Calculates the accuracy based on two columns in a dataframe: 
-
-The .display[truth]: `\({y}_i\)` 
-
-The predicted .display[estimate]: `\(\hat{y}_i\)` 
-
-
-```r
-accuracy(data, truth, estimate)
-```
-
-
-.footnote[`*` from `yardstick`]
-
----
-
-
-```r
-tree_mod %&gt;% 
-  fit(Class ~ tau + VEGF, 
-      data = alz_train) %&gt;% 
-  predict(new_data = alz_test) %&gt;% 
-  mutate(true_class = alz_test$Class) %&gt;% 
-* accuracy(truth = true_class, estimate = .pred_class)
-# # A tibble: 1 × 3
-#   .metric  .estimator .estimate
-#   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
-# 1 accuracy binary         0.848
-```
-
-
----
-template: step1
-
----
-template: step2
-
----
-name: step3
-background-image: url("images/predicting/predicting.004.jpeg")
-background-size: contain
-
-
-
 
 
 
@@ -877,6 +776,14 @@ background-size: contain
 class: middle, center
 
 # Data Splitting
+
+--
+
+&lt;img src="figs/02/unnamed-chunk-32-1.png" width="720" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/02/unnamed-chunk-33-1.png" width="720" style="display: block; margin: auto;" /&gt;
 
 --
 
@@ -902,16 +809,16 @@ class: middle, center
 
 &lt;img src="figs/02/unnamed-chunk-39-1.png" width="720" style="display: block; margin: auto;" /&gt;
 
---
-
-&lt;img src="figs/02/unnamed-chunk-40-1.png" width="720" style="display: block; margin: auto;" /&gt;
-
---
-
-&lt;img src="figs/02/unnamed-chunk-41-1.png" width="720" style="display: block; margin: auto;" /&gt;
-
 ---
 
+
+&lt;img src="figs/02/unnamed-chunk-40-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="figs/02/unnamed-chunk-41-1.png" width="1080" style="display: block; margin: auto;" /&gt;
+
+--
 
 &lt;img src="figs/02/unnamed-chunk-42-1.png" width="1080" style="display: block; margin: auto;" /&gt;
 
@@ -937,15 +844,7 @@ class: middle, center
 
 --
 
-&lt;img src="figs/02/unnamed-chunk-48-1.png" width="1080" style="display: block; margin: auto;" /&gt;
-
---
-
-&lt;img src="figs/02/unnamed-chunk-49-1.png" width="1080" style="display: block; margin: auto;" /&gt;
-
---
-
-.right[Mean RMSE]
+.right[Mean metric]
 
 
 
@@ -1053,7 +952,7 @@ How many times does in observation/row appear in the assessment set?
 
 ---
 
-&lt;img src="figs/02/unnamed-chunk-51-1.png" width="864" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/02/unnamed-chunk-49-1.png" width="864" style="display: block; margin: auto;" /&gt;
 
 ---
 class: middle, center
@@ -1083,16 +982,16 @@ class: middle, center, inverse
 
 The assessment set looked like this?
 
-&lt;img src="figs/02/unnamed-chunk-53-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/02/unnamed-chunk-51-1.png" width="504" style="display: block; margin: auto;" /&gt;
 
 ---
 
 ## Or this?
 
-&lt;img src="figs/02/unnamed-chunk-54-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/02/unnamed-chunk-52-1.png" width="504" style="display: block; margin: auto;" /&gt;
 
 ---
-&lt;img src="figs/02/unnamed-chunk-55-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/02/unnamed-chunk-53-1.png" width="504" style="display: block; margin: auto;" /&gt;
 
 ---
 class: middle
@@ -1100,7 +999,7 @@ class: middle
 .pull-left[
 
 
-&lt;img src="figs/02/unnamed-chunk-56-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/02/unnamed-chunk-54-1.png" width="504" style="display: block; margin: auto;" /&gt;
 ]
 
 .pull-right[
@@ -1126,7 +1025,7 @@ class: middle
 class: middle
 
 .pull-left[
-&lt;img src="figs/02/unnamed-chunk-58-1.png" width="504" style="display: block; margin: auto;" /&gt;
+&lt;img src="figs/02/unnamed-chunk-56-1.png" width="504" style="display: block; margin: auto;" /&gt;
 ]
 
 
@@ -1166,7 +1065,7 @@ alz_folds &lt;-
 alz_folds
 ```
 
-<div class="countdown" id="timer_61414250" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_61418b85" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">01</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -1256,13 +1155,30 @@ _results %&gt;% collect_metrics(summarize = TRUE)
 
 ---
 
+.pull-left[
+
 ```r
-tree_mod %&gt;% 
+tree_fit &lt;- tree_mod %&gt;% 
   fit_resamples(
     Class ~ tau + VEGF, 
     resamples = alz_folds
-    ) %&gt;% 
-  collect_metrics(summarize = FALSE)
+  )
+
+collect_metrics(tree_fit)
+# # A tibble: 2 × 6
+#   .metric  .estimator  mean     n std_err .config           
+#   &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;             
+# 1 accuracy binary     0.820    10  0.0204 Preprocessor1_Mod…
+# 2 roc_auc  binary     0.786    10  0.0180 Preprocessor1_Mod…
+```
+]
+
+--
+
+.pull-right[
+
+```r
+collect_metrics(tree_fit, summarize = FALSE)
 # # A tibble: 20 × 5
 #    id     .metric  .estimator .estimate .config             
 #    &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
@@ -1279,6 +1195,8 @@ tree_mod %&gt;%
 # # … with 10 more rows
 ```
 
+]
+
 ---
 class: middle, center, frame
 
@@ -1292,8 +1210,135 @@ class: middle, center, frame
 
 
 ---
+class: middle, center
 
-cover some metrics here, like accuracy and roc auc
+&lt;iframe src="https://tidymodels.github.io/yardstick/articles/metric-types.html#metrics" width="504" height="400px"&gt;&lt;/iframe&gt;
+
+&lt;https://tidymodels.github.io/yardstick/articles/metric-types.html#metrics&gt;
+
+
+---
+class: middle, center
+
+# `roc_curve()`
+
+Takes predictions from a special kind of `fit_resamples()`.
+
+Returns a tibble with probabilities.
+
+
+```r
+roc_curve(data, truth = Class, estimate = .pred_Impaired)
+```
+
+Truth = .display[probability] of target response
+
+Estimate = .display[predicted] class
+
+---
+
+
+```r
+tree_preds &lt;- tree_mod %&gt;% 
+  fit_resamples(
+    Class ~ tau + VEGF, 
+    resamples = alz_folds,
+    control = control_resamples(save_pred = TRUE)
+  )
+
+tree_preds %&gt;% 
+  collect_predictions() %&gt;% 
+  roc_curve(truth = Class, estimate = .pred_Impaired)
+# # A tibble: 40 × 3
+#    .threshold specificity sensitivity
+#         &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+#  1  -Inf           0            1    
+#  2     0.0703      0            1    
+#  3     0.0708      0.0688       0.976
+#  4     0.0713      0.124        0.963
+#  5     0.0767      0.183        0.951
+#  6     0.0772      0.248        0.939
+#  7     0.0925      0.317        0.927
+#  8     0.0960      0.344        0.890
+#  9     0.0998      0.408        0.854
+# 10     0.102       0.454        0.829
+# # … with 30 more rows
+```
+
+---
+
+## Area under the curve
+
+
+.pull-left[
+&lt;img src="images/roc-pretty-good.png" width="1037" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+* AUC = 0.5: random guessing
+
+* AUC = 1: perfect classifer
+
+* In general AUC of above 0.8 considered "good"
+]
+
+
+---
+
+
+&lt;img src="images/roc-guessing.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+
+&lt;img src="images/roc-perfect.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+&lt;img src="images/roc-bad.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+
+&lt;img src="images/roc-ok.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+
+&lt;img src="images/roc-pretty-good.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+class: your-turn
+
+# Your turn 4
+
+
+Add a `autoplot()` to visualize the ROC AUC.
+
+
+
+---
+
+
+```r
+tree_preds %&gt;% 
+  collect_predictions() %&gt;% 
+  roc_curve(truth = Class, estimate = .pred_Impaired) %&gt;% 
+  autoplot()
+```
+
+&lt;img src="figs/02/unnamed-chunk-75-1.png" width="504" style="display: block; margin: auto;" /&gt;
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
