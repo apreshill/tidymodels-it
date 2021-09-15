@@ -105,6 +105,7 @@ Alison
 + [03: Build better training data](slides/03-recipe.html)
 + [04: The forest for the trees](slides/04-forests.html)
 + [05: Build a fine-tuned model](slides/05-tune.html)
++ [06: Case study](slides/06-case-study.html)
 
 ## Workshops
 
