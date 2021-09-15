@@ -287,37 +287,6 @@ class: inverse, middle, center
 
 # To the workshop! `r emo::ji("rocket")`
 
-<i class="fas fa-crow"></i>
-
-https://tmv.netlify.app/site/
-
-
-<i class="fas fa-cloud"></i>
-
-http://bit.ly/tmv-rmed2020
----
-
-What is a model?
-
-A function, an equation
-
-Observations go in, and predictions come out
-
----
-
-What's inside a model?
-
-Data -> parameter estimates
-
----
-
-How do we get a model?
-
-We build one
-
----
-
-An explanatory or descriptive modeling workflow (show diagrams)
 
 ---
 
@@ -336,14 +305,6 @@ rt_mod %>%
   # compare
   rmse(truth = body_mass_g, estimate = .pred)
 ```
-
----
-
-A predictive modeling workflow (edited diagrams)
-
----
-
-Idea: only show huge block of code at beginning, then end, exercise is to figure out what each step does
 
 
 

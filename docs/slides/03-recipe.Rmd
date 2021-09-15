@@ -258,11 +258,9 @@ class: middle, frame
 
 .right-column[
 
-1\. Pick a .display[model]
+1\. Pick a .display[model] + .display[engine]
 
-2\. Set the .display[engine]
-
-3\. Set the .display[mode] (if needed)
+2\. Set the .display[mode] (if needed)
 
 ]
 
@@ -467,7 +465,7 @@ gt(all)  %>%
   fmt_markdown(columns = everything()) %>%
   tab_options(
     table.width = pct(10),
-    table.font.size = "200px"
+    table.font.size = "100px"
   )
 ```
 
