@@ -95,7 +95,8 @@ Alison
 
 ## Links
 
-+ [RStudio Cloud workspace](http://bit.ly/tmv-rmed2020)
+
++ [RStudio Cloud workspace](https://bit.ly/tidymodels-it)
 
 ### Slides
 
