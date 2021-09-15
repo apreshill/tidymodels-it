@@ -287,6 +287,10 @@ class: inverse, middle, center
 
 # To the workshop! `r emo::ji("rocket")`
 
+Slides: https://apreshill.github.io/tidymodels-it/
+
+RStudio Cloud: https://bit.ly/tidymodels-it
+
 
 ---
 
